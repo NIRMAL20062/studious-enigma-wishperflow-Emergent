@@ -1027,6 +1027,42 @@ body[data-screen="lobby"] .dock-btn { visibility: hidden; }
 .filler { color: var(--coral); text-decoration-thickness: 2px; }
 .action-row .text-input { min-width: 140px; }
 
+/* Voice vs typing race */
+.race-target {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--lavender);
+  font-family: var(--font-story);
+  font-size: 1.3rem;
+  line-height: 1.4;
+}
+
+.race-step { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.race-step .action-row { align-self: stretch; }
+.race-results { display: flex; flex-direction: column; gap: 10px; }
+.race-bars { display: flex; flex-direction: column; gap: 8px; }
+.race-row { display: grid; grid-template-columns: 76px 1fr auto; align-items: center; gap: 10px; }
+.race-label { font-weight: 800; font-size: 0.9rem; }
+.race-wpm { font-weight: 900; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.race-track { height: 22px; border: 3px solid var(--ink); border-radius: 999px; background: #fff; overflow: hidden; }
+.race-fill { height: 100%; transition: width 0.8s var(--ease-out); }
+.is-type .race-fill { background: var(--lavender); }
+.is-speak .race-fill { background: var(--green); }
+
+/* Funnel model */
+.funnel { display: flex; flex-direction: column; gap: 12px; }
+.funnel-row { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 3px solid var(--ink); border-radius: 16px; background: #fff; }
+.funnel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.funnel-label { font-weight: 800; font-size: 0.95rem; }
+.funnel-count { font-weight: 900; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.funnel-track { height: 12px; border-radius: 999px; background: var(--lavender); overflow: hidden; }
+.funnel-fill { height: 100%; background: var(--orange); transition: width 0.25s ease; }
+.funnel-controls { display: flex; align-items: center; gap: 10px; }
+.funnel-range { flex: 1; accent-color: var(--green); min-height: 32px; }
+.funnel-setting { min-width: 5.5ch; text-align: right; font-size: 0.85rem; font-weight: 700; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.funnel-total { margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--green); color: var(--cream); font-weight: 900; font-size: 1.1rem; }
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

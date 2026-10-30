@@ -86,6 +86,15 @@ The scrolling site moved to `old/`. Its interactions get folded into islands.
 - [ ] V.14 My narration clips (record on phone, put in assets/voice/, add file names in game-data.js)
 - [ ] V.15 Sound effects: sail, treasure, page turn
 
+## G. Growth focus (31 Oct): the story as evidence, the final island as Growth HQ
+
+- [x] G.1 "Skip to the growth pitch" for busy judges
+- [~] G.2 Growth lesson with each treasure (my words: TODO)
+- [~] G.3 Growth HQ: voice vs typing race, users, 30-day playbook, funnel model, Experiment #1, ending
+- [ ] G.4 Me: write the 3 playbook experiments (hypothesis, channel, cost, metric, target)
+- [ ] G.5 Me: run Experiment #1 before 3 Nov and put the real numbers in
+- [ ] G.6 Me: replace the funnel's example numbers with my own estimates
+
 ## 5. Polish (2 Nov)
 
 - [ ] 5.1 Read every line of text out loud; remove anything I did not say or would not say

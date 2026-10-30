@@ -322,14 +322,16 @@ const ACTIVITIES = {
     ctx.complete(); // asking is optional
   },
 
-  // V.13 Recruit your crew: three student personas
-  crew(body, data, ctx) {
+  // Tabs: pick an item, see its rows. Used for the user personas and the playbook.
+  // Continue unlocks once every tab has been seen.
+  tabs(body, data, ctx) {
+    const items = data.items;
     const picker = el("div", "chips");
     const panel = el("div", "crew-card");
     panel.setAttribute("aria-live", "polite");
     const seen = new Set();
 
-    const pickBtns = data.personas.map((p, i) => {
+    const pickBtns = items.map((p, i) => {
       const b = btn("chip", p.name);
       b.setAttribute("aria-pressed", "false");
       b.addEventListener("click", () => show(i));
@@ -339,72 +341,171 @@ const ACTIVITIES = {
 
     function show(i) {
       pickBtns.forEach((b, j) => b.setAttribute("aria-pressed", String(i === j)));
-      const p = data.personas[i];
+      const p = items[i];
       panel.replaceChildren(el("h3", "crew-name", p.name), rowList(p.rows));
       panel.classList.remove("is-swapped");
       void panel.offsetWidth;
       panel.classList.add("is-swapped");
       seen.add(i);
       pickBtns[i].classList.add("is-seen");
-      if (seen.size === data.personas.length) ctx.complete();
+      if (seen.size === items.length) ctx.complete();
     }
 
     show(0);
     body.append(picker, panel);
-    ctx.commands = data.personas.map((p, i) => ({ words: p.say || [], label: p.name, run: () => show(i) }));
+    ctx.commands = items.map((p, i) => ({ words: p.say || [], label: p.name, run: () => show(i) }));
   },
 
-  // V.13 Demo: messy Hinglish in, fillers struck out, clean sentence out
-  demo(body, data, ctx) {
-    const grid = el("div", "demo");
-    const rawBox = el("div", "demo-box");
-    const raw = el("p", "demo-text");
-    raw.setAttribute("aria-live", "polite");
-    rawBox.append(el("p", "demo-label", "What you said"), raw);
-    const cleanBox = el("div", "demo-box is-clean");
-    const clean = el("p", "demo-text");
-    cleanBox.append(el("p", "demo-label", "What you meant"), clean);
-    grid.append(rawBox, cleanBox);
+  // Voice vs typing race: the visitor's own typing speed, then speaking speed, measured here.
+  // Then the spoken words cleaned up, like Flow does. No claims, only their numbers.
+  race(body, data, ctx) {
+    const words = (t) => t.trim().split(/\s+/).filter(Boolean).length;
+    const target = el("p", "race-target", data.sentence);
 
-    const row = el("form", "action-row");
-    const mic = micButton("big-btn mic-big", "Speak");
+    const step1 = el("div", "race-step");
+    const typeForm = el("form", "action-row");
     const input = el("input", "text-input");
     input.type = "text";
-    input.placeholder = SpeechRecognition ? "or type it" : "Type something in Hinglish";
-    input.setAttribute("aria-label", "Something in Hinglish");
-    const example = btn("link-btn", "Use an example");
-    row.append(mic, input, example);
+    input.placeholder = "Type it here. The clock starts on your first key.";
+    input.autocomplete = "off";
+    input.setAttribute("aria-label", "Type the sentence");
+    const typed = btn("small-btn", "Done");
+    typed.type = "submit";
+    typeForm.append(input, typed);
+    step1.append(el("p", "demo-label", "Round 1 · Type it"), typeForm);
 
-    function run(text) {
-      const { tokens, kept } = cleanUp(text);
-      raw.replaceChildren();
-      tokens.forEach(({ word, filler }, i) => {
-        if (i) raw.append(" ");
-        raw.append(filler ? el("s", "filler", word) : word);
-      });
-      typeText(clean, kept, 300);
-      ctx.complete();
+    const step2 = el("div", "race-step");
+    step2.hidden = true;
+    const mic = micButton("big-btn mic-big", "Say it");
+    const heard = el("p", "heard");
+    heard.setAttribute("aria-live", "polite");
+    step2.append(el("p", "demo-label", "Round 2 · Now say it"), mic, heard);
+
+    const results = el("div", "race-results");
+    results.hidden = true;
+    const bars = el("div", "race-bars");
+    const verdict = el("p", "verdict");
+    const cleanBox = el("div", "demo-box is-clean");
+    cleanBox.hidden = true;
+    const clean = el("p", "demo-text");
+    cleanBox.append(el("p", "demo-label", "What you meant"), clean);
+    results.append(bars, verdict, cleanBox, el("p", "soft small", data.note));
+
+    body.append(target, step1, step2, results);
+
+    let typeStart = null;
+    let typeWpm = null;
+    let speakWpm = null;
+
+    function bar(label, wpm, max, className) {
+      const row = el("div", `race-row ${className}`);
+      const track = el("div", "race-track");
+      const fill = el("div", "race-fill");
+      fill.style.width = `${Math.max(6, (wpm / max) * 100)}%`;
+      track.append(fill);
+      row.append(el("span", "race-label", label), track, el("span", "race-wpm", `${Math.round(wpm)} wpm`));
+      return row;
     }
 
-    mic.addEventListener("click", () => {
-      listen({
-        button: mic,
-        onStart: () => (raw.textContent = "Listening..."),
-        onInterim: (s) => (raw.textContent = s),
-        onFinal: run,
-        onError: (m) => (raw.textContent = m),
-      });
-    });
-    row.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (input.value.trim()) run(input.value.trim());
-    });
-    example.addEventListener("click", () => {
-      input.value = data.example;
-      run(data.example);
+    function show() {
+      const max = Math.max(typeWpm || 0, speakWpm || 0, 1);
+      bars.replaceChildren();
+      if (typeWpm) bars.append(bar("Typing", typeWpm, max, "is-type"));
+      if (speakWpm) bars.append(bar("Speaking", speakWpm, max, "is-speak"));
+      if (typeWpm && speakWpm) {
+        const ratio = speakWpm / typeWpm;
+        verdict.textContent = ratio >= 1.1 ? `Speaking was ${ratio.toFixed(1)}x faster for you.` : "Typing kept up this time. Try speaking the way you talk to a friend.";
+      } else {
+        verdict.textContent = SpeechRecognition ? "Now say it, and race yourself." : "Open this in Chrome to race your voice against your typing.";
+      }
+      results.hidden = false;
+    }
+
+    input.addEventListener("input", () => {
+      if (!typeStart) typeStart = performance.now();
     });
 
-    body.append(grid, row, el("p", "soft small", data.note));
+    typeForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!typeStart || !input.value.trim()) return;
+      const minutes = (performance.now() - typeStart) / 60000;
+      typeWpm = words(input.value) / Math.max(minutes, 1 / 600);
+      input.disabled = true;
+      typed.disabled = true;
+      if (SpeechRecognition) step2.hidden = false;
+      show();
+      ctx.complete();
+    });
+
+    mic.addEventListener("click", () => {
+      let firstWord = null;
+      listen({
+        button: mic,
+        onStart: () => (heard.textContent = "Listening..."),
+        onInterim: (s) => {
+          if (!firstWord) firstWord = performance.now();
+          heard.textContent = s;
+        },
+        onFinal: (s) => {
+          const end = performance.now();
+          const ms = Math.max(end - (firstWord || end - 1500), 600);
+          speakWpm = words(s) / (ms / 60000);
+          heard.textContent = `Heard: "${s}"`;
+          const { kept } = cleanUp(s);
+          cleanBox.hidden = false;
+          typeText(clean, kept, 200);
+          show();
+        },
+        onError: (m) => (heard.textContent = m),
+      });
+    });
+
+    ctx.commands = [{ words: ["say it", "speak"], label: "Listening", run: () => mic.click() }];
+  },
+
+  // Funnel model: drag the assumptions, watch the numbers. Clearly labelled as assumptions.
+  funnel(body, data, ctx) {
+    const list = el("div", "funnel");
+    const total = el("p", "funnel-total");
+    const rows = data.stages.map((stage, i) => {
+      const row = el("div", "funnel-row");
+      const head = el("div", "funnel-head");
+      const count = el("span", "funnel-count");
+      head.append(el("span", "funnel-label", stage.label), count);
+      const range = el("input", "funnel-range");
+      range.type = "range";
+      range.min = stage.min;
+      range.max = stage.max;
+      range.step = stage.step;
+      range.value = stage.value;
+      range.setAttribute("aria-label", i === 0 ? stage.label : `${stage.label}, percent of the step before`);
+      const setting = el("span", "funnel-setting");
+      const track = el("div", "funnel-track");
+      const fill = el("div", "funnel-fill");
+      track.append(fill);
+      const controls = el("div", "funnel-controls");
+      controls.append(range, setting);
+      row.append(head, track, controls);
+      list.append(row);
+      range.addEventListener("input", update);
+      return { stage, range, count, setting, fill };
+    });
+
+    function update() {
+      let n = Number(rows[0].range.value);
+      const top = n;
+      rows.forEach((r, i) => {
+        if (i > 0) n = (n * Number(r.range.value)) / 100;
+        r.count.textContent = Math.round(n).toLocaleString("en-IN");
+        r.setting.textContent = i === 0 ? "students" : `${r.range.value}%`;
+        r.fill.style.width = `${Math.max(2, (n / top) * 100)}%`;
+      });
+      total.textContent = `${Math.round(n).toLocaleString("en-IN")} ${data.result}`;
+    }
+
+    update();
+    body.append(el("p", "soft small", data.note), list, total);
+    ctx.complete();
   },
 
   // V.13 Ending: what a recruiter needs

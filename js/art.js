@@ -218,6 +218,23 @@ const ART = {
         <path d="M-12 -70 L12 -70 M-12 -50 L12 -50 M-12 -30 L12 -30" stroke="var(--cream)" stroke-width="4" stroke-linecap="round"/>`,
       ship: `
         <g transform="scale(2)">${ART.ship()}</g>`,
+      chart: `
+        <rect x="-80" y="-80" width="160" height="130" rx="10" fill="var(--cream)" ${INK}/>
+        <rect x="-60" y="-10" width="26" height="44" rx="4" fill="var(--lavender)" ${INK}/>
+        <rect x="-18" y="-34" width="26" height="68" rx="4" fill="var(--orange)" ${INK}/>
+        <rect x="24" y="-60" width="26" height="94" rx="4" fill="var(--coral)" ${INK}/>
+        <path d="M-60 -36 L-18 -56 L34 -84" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round"/>`,
+      book: `
+        <path d="M0 -60 Q-40 -76 -84 -64 L-84 40 Q-40 28 0 44 Z" fill="var(--cream)" ${INK}/>
+        <path d="M0 -60 Q40 -76 84 -64 L84 40 Q40 28 0 44 Z" fill="var(--lavender)" ${INK}/>
+        <path d="M-66 -40 Q-36 -48 -16 -40 M-66 -20 Q-36 -28 -16 -20 M-66 0 Q-36 -8 -16 0" fill="none" stroke="var(--ink)" stroke-width="3" opacity=".4"/>
+        <path d="M20 -48 L20 0 L34 -12 L48 0 L48 -52" fill="var(--coral)" ${INK}/>`,
+      flask: `
+        <path d="M-22 -92 L22 -92 M-14 -92 L-14 -40 L-66 40 Q-72 54 -56 54 L56 54 Q72 54 66 40 L14 -40 L14 -92" fill="var(--cream)" ${INK}/>
+        <path d="M-46 8 L46 8 L62 38 Q66 48 54 48 L-54 48 Q-66 48 -62 38 Z" fill="var(--green)"/>
+        <circle cx="-14" cy="24" r="7" fill="var(--cream)"/>
+        <circle cx="12" cy="34" r="5" fill="var(--cream)"/>
+        <circle cx="4" cy="-14" r="6" fill="var(--orange)" ${INK}/>`,
     };
     return d[kind] || d.house;
   },

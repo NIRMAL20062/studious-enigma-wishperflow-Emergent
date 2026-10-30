@@ -229,29 +229,41 @@ const GAME = {
     {
       id: "bangalore",
       name: "Bangalore",
-      sub: "Wispr Flow",
+      sub: "Growth HQ",
       x: 800, y: 220,
       final: true,
       places: [
         {
-          id: "flow", label: "Wispr Flow", kind: "fog", x: 280, y: 420, mood: "day",
+          id: "flow", label: "Why Flow", kind: "fog", x: 220, y: 300, mood: "day",
           lines: [
-            { who: "Nirmal", text: "The fog clears. This is the island I am sailing to." },
+            { who: "Nirmal", text: "The fog clears. This is the island I am sailing to: growing Wispr Flow in India." },
             { who: "Nirmal", text: "TODO: why Wispr Flow, why me. My pitch, in my words." },
           ],
         },
         {
-          id: "crew", label: "Recruit a crew", kind: "flag", x: 720, y: 420, mood: "day",
+          id: "race", label: "Voice vs typing", kind: "mic", x: 500, y: 300, mood: "day",
+          lines: [
+            { who: "Nirmal", text: "Don't take my word for why voice matters. Race yourself." },
+          ],
+          activity: {
+            type: "race",
+            kicker: "Live test",
+            title: "Voice vs typing",
+            sentence: "kal subah nau baje meeting hai, slides ready rakhna aur sabko remind kar dena",
+            note: "Your own numbers, measured roughly in this browser. Wispr Flow does the clean-up properly, in every app.",
+          },
+        },
+        {
+          id: "users", label: "Your users", kind: "flag", x: 780, y: 300, mood: "day",
           lines: [
             { who: "Nirmal", text: "Every voyage needs a crew. These are the students I would bring to Wispr Flow." },
             { who: "Nirmal", text: "I have been all three." },
           ],
-          // V.13 The pitch: three student personas
           activity: {
-            type: "crew",
-            kicker: "The pitch",
-            title: "Recruit your crew",
-            personas: [
+            type: "tabs",
+            kicker: "Who we grow with",
+            title: "Your users",
+            items: [
               {
                 name: "The Hindi-first student",
                 say: ["hindi", "first"],
@@ -286,25 +298,100 @@ const GAME = {
           },
         },
         {
-          id: "demo", label: "Try Flow", kind: "mic", x: 280, y: 770, mood: "day",
+          id: "playbook", label: "30-day playbook", kind: "book", x: 220, y: 580, mood: "day",
           lines: [
-            { who: "Nirmal", text: "This is how I think: in Hinglish, with fillers. Try it yourself." },
+            { who: "Nirmal", text: "Here is what I would run in my first 30 days. Small, cheap, and measured." },
           ],
-          // V.13 Live demo
+          // My own experiment ideas. Each one: hypothesis, channel, cost, metric, target.
           activity: {
-            type: "demo",
-            kicker: "Live demo",
-            title: "Speak the way you think",
-            example: "um so basically mujhe kal ka assignment like submit karna hai",
-            note: "A tiny version, built for this page. Wispr Flow does this properly, in every app.",
+            type: "tabs",
+            kicker: "First 30 days",
+            title: "Growth playbook",
+            items: [
+              {
+                name: "Experiment 1",
+                say: ["one", "first"],
+                rows: [
+                  { label: "Idea", text: "TODO" },
+                  { label: "Hypothesis", text: "TODO: if we do X for Y, then Z will happen, because..." },
+                  { label: "Channel", text: "TODO" },
+                  { label: "Cost", text: "TODO" },
+                  { label: "Metric", text: "TODO" },
+                  { label: "Target", text: "TODO" },
+                ],
+              },
+              {
+                name: "Experiment 2",
+                say: ["two", "second"],
+                rows: [
+                  { label: "Idea", text: "TODO" },
+                  { label: "Hypothesis", text: "TODO" },
+                  { label: "Channel", text: "TODO" },
+                  { label: "Cost", text: "TODO" },
+                  { label: "Metric", text: "TODO" },
+                  { label: "Target", text: "TODO" },
+                ],
+              },
+              {
+                name: "Experiment 3",
+                say: ["three", "third"],
+                rows: [
+                  { label: "Idea", text: "TODO" },
+                  { label: "Hypothesis", text: "TODO" },
+                  { label: "Channel", text: "TODO" },
+                  { label: "Cost", text: "TODO" },
+                  { label: "Metric", text: "TODO" },
+                  { label: "Target", text: "TODO" },
+                ],
+              },
+            ],
           },
         },
         {
-          id: "join", label: "Join the crew", kind: "ship", x: 720, y: 770, mood: "day",
+          id: "funnel", label: "Funnel model", kind: "chart", x: 500, y: 580, mood: "day",
+          lines: [
+            { who: "Nirmal", text: "Every campaign is a funnel. Move the numbers and see where it leaks." },
+          ],
+          // Example assumptions only, labelled as such on the card. Replace with my real estimates.
+          activity: {
+            type: "funnel",
+            kicker: "Think in numbers",
+            title: "One campus campaign",
+            note: "Example assumptions, not real data. Drag them to test your own.",
+            result: "students still using Flow after a week",
+            stages: [
+              { label: "Students who see the campaign", min: 100, max: 10000, step: 100, value: 2000 },
+              { label: "Try Wispr Flow", min: 1, max: 100, step: 1, value: 20 },
+              { label: "Use it on day one", min: 1, max: 100, step: 1, value: 60 },
+              { label: "Still using it after a week", min: 1, max: 100, step: 1, value: 40 },
+            ],
+          },
+        },
+        {
+          id: "experiment", label: "Experiment #1", kind: "flask", x: 780, y: 580, mood: "day",
+          lines: [
+            { who: "Nirmal", text: "Plans are cheap. So before applying, I ran one." },
+          ],
+          // My real experiment, real numbers only. Status changes to "Done" when finished.
+          activity: {
+            type: "log",
+            kicker: "Real results",
+            title: "Experiment #1",
+            status: "Running",
+            rows: [
+              { label: "Hypothesis", text: "TODO" },
+              { label: "What I did", text: "TODO" },
+              { label: "Results", text: "TODO: real numbers only" },
+              { label: "What I learned", text: "TODO" },
+              { label: "What I would do next", text: "TODO" },
+            ],
+          },
+        },
+        {
+          id: "join", label: "Join the crew", kind: "ship", x: 500, y: 850, mood: "day",
           lines: [
             { who: "Nirmal", text: "That's my voyage so far. The next island is yours to decide." },
           ],
-          // V.13 Ending
           activity: {
             type: "ending",
             kicker: "End of the voyage",

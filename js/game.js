@@ -231,7 +231,7 @@ function renderIsland() {
   const w = isl.name.length * 26 + 80;
   islandSvg.append(svgEl("rect", { class: "flag-pill", x: 500 - w / 2, y: 30, width: w, height: 64, rx: 32 }));
   islandSvg.append(svgEl("text", { class: "flag-text", x: 500, y: 62, style: "font-size:38px" }, isl.name));
-  const placeScale = isl.places.length > 3 ? 1.1 : 1.3;
+  const placeScale = isl.places.length > 5 ? 0.9 : isl.places.length > 3 ? 1.1 : 1.3;
 
   isl.places.forEach((p, j) => {
     const done = state.cleared.has(`${isl.id}:${p.id}`);
