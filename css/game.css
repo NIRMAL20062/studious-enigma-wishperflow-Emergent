@@ -659,6 +659,36 @@ body[data-screen="lobby"] .hud-loot { visibility: hidden; }
 .reward-kicker { margin: 0; font-weight: 900; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--coral); }
 .reward-title { margin: 4px 0 6px; font-weight: 900; font-size: 2.2rem; line-height: 1; }
 .reward-detail { margin: 0 0 20px; font-family: var(--font-story); font-size: 1.15rem; }
+.reward-card { max-height: 100%; overflow-y: auto; }
+
+.reward-lesson {
+  margin: -6px 0 18px;
+  padding: 14px 16px;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: var(--cream);
+  text-align: left;
+}
+
+.lesson-label {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+.lesson-text,
+.lesson-flow {
+  margin: 2px 0 10px;
+  font-family: var(--font-story);
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.lesson-flow { margin-bottom: 0; }
+
 .reward .big-btn { width: 100%; font-size: 1.05rem; min-height: 56px; }
 
 /* ---------- Toast ---------- */

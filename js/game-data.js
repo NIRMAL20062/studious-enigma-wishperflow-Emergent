@@ -5,6 +5,7 @@
 //   id, name, sub        name on the map and in the HUD
 //   x, y                 position on the sea map (map is 1000 x 1000)
 //   treasure             optional: what you win when every place on the island is cleared
+//   lesson               optional: the growth lesson shown with the treasure (text, atFlow)
 //   places               the spots you tap on the island to go inside
 // Place:
 //   id, label, kind      kind picks the drawing: "harbour" | "house" | "taxi" | "lamp" | "school" | "tower" | "storm" | "college" | "fog"
@@ -70,6 +71,10 @@ const GAME = {
       sub: "Two new languages",
       x: 560, y: 780,
       treasure: { name: "ANTHE", detail: "100% scholarship, Aakash Institute" },
+      lesson: {
+        text: "TODO: what finding ANTHE taught me about channels. Most students around me never heard of it.",
+        atFlow: "TODO: how I would use that at Wispr Flow.",
+      },
       places: [
         {
           id: "brother", label: "Brother's job", kind: "tower", x: 720, y: 420, mood: "day",
@@ -142,6 +147,10 @@ const GAME = {
       sub: "The bet",
       x: 620, y: 450,
       treasure: { name: "TopNeurons", detail: "100% scholarship, Allen + CBSE 12th" },
+      lesson: {
+        text: "TODO: what taking a bet on TopNeurons, and then the JEE storm, taught me.",
+        atFlow: "TODO: how I would use that at Wispr Flow.",
+      },
       places: [
         {
           id: "exam", label: "The new exam", kind: "school", x: 320, y: 520, mood: "day",
@@ -178,6 +187,10 @@ const GAME = {
       sub: "Sitare",
       x: 830, y: 640,
       treasure: { name: "Sitare", detail: "4-year 100% scholarship, BTech CSE" },
+      lesson: {
+        text: "TODO: what Sitare taught me.",
+        atFlow: "TODO: how I would use that at Wispr Flow.",
+      },
       places: [
         {
           id: "sitare", label: "Sitare", kind: "college", x: 320, y: 530, mood: "day",

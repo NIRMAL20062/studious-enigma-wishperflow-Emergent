@@ -321,6 +321,15 @@ function showReward(isl) {
     ? isl.treasure.detail
     : next >= 0 ? `Next island: ${islands[next].name}` : "The voyage continues.";
   $(".reward-chest").hidden = !isl.treasure;
+  const lesson = $(".reward-lesson");
+  lesson.hidden = !isl.lesson;
+  if (isl.lesson) {
+    [[".lesson-text", isl.lesson.text], [".lesson-flow", isl.lesson.atFlow]].forEach(([sel, text]) => {
+      const p = $(sel);
+      p.textContent = text;
+      p.classList.toggle("todo", text.startsWith("TODO"));
+    });
+  }
   box.hidden = false;
   if (isl.treasure) {
     renderHud();
