@@ -42,7 +42,9 @@ Source: the official challenge page (28 Oct to 4 Nov).
 
 ## 2. What we are building
 
-A **cinematic interactive story** (decided 30 Oct), not a kids game. Think NYT interactive feature or an Apple product page: scroll-driven scenes, big typography, subtle motion and sound. Every interaction must make the visitor *feel* something or *decide* something. No points, stars, badges, or "tap the object" collecting. **Voice is a core control**: voice moments in most chapters, with a button fallback everywhere. The last chapter is my pitch for Wispr Flow in India, told from the point of view of the exact user they want to reach.
+**THE VOYAGE** (direction changed 30 Oct evening; the scrolling site is kept in `old/` for reference): a one-page anime-style pirate adventure game with a mobile-game feel (lobby, HUD, missions, treasure). No scrolling: the player zooms *inside and inside*: lobby > sea map > island > place > dialog. Each island is a chapter of my life; scholarships are treasures; JEE is the storm; Bangalore (Wispr Flow) is the final island in the fog, unlocked last. Story is told in anime visual-novel dialog boxes. **Voice is a core control** (set sail, island names, place names, next, back, in English and Hindi), with a tap for everything. Background narration: my own recorded voice clips, one per dialog line, in `assets/voice/`. The final island is my pitch for Wispr Flow in India.
+
+Built so far: lobby, HUD, sea map with locked islands and fog, island close-ups, inside views, dialog box, treasure popups, generated sea sound, voice commands. Still to fold in from the old site: Marathi "Read this" trial, Marathi say-it, decision cards, post-mortem (as the captain's log), Ask me anything, persona pitch (as recruiting my crew), Hinglish demo, ending.
 
 **The core idea:** my life is a growth story. Again and again I found a channel most people did not know about (Homi Bhabha, Anthe, TopNeurons, Sitare), earned it, and moved on. Growth teams need that skill. The final pitch connects this to how voice would have changed my school life as a student who thought in Hindi and Bhojpuri, studied in Marathi, and wrote in English.
 
@@ -70,7 +72,7 @@ A **cinematic interactive story** (decided 30 Oct), not a kids game. Think NYT i
 - **No emojis anywhere.** Use drawn SVG shapes and icons.
 - **Palette:** cream `#FFFFEB`, deep green `#034F46`, lavender `#EBD5FF`, orange `#FFA946`, coral `#FF6B4E`, pink `#F9B8F0`, ink `#1A1A1A`.
 - **Type:** Figtree (bold, geometric) for headings and UI, EB Garamond for story text.
-- **Illustration:** minimal and typography-led. A few abstract drawn shapes and scene elements in SVG (a road, a window, a horizon). **No cartoon people or characters.** Must look premium, never like a kids site.
+- **Illustration:** flat SVG drawings with thick ink outlines in the Wispr palette (all in `js/art.js`). Original characters in a similar flat style, never copied from Wispr Flow's or any anime's files. No One Piece names or symbols. The hero is me as a young captain (green coat, orange scarf). Game UI: chunky outlined buttons with hard shadows, cream panels.
 - **Feel:** cinematic, calm, warm. Big type, generous space, a lavender squiggle line as decoration. One memorable thing per screen, no clutter.
 - Mobile first. Most people will open the link from a phone.
 - Respect reduced motion. Visible keyboard focus.
@@ -84,11 +86,12 @@ A **cinematic interactive story** (decided 30 Oct), not a kids game. Think NYT i
 - **Structure:** keep story text in data, not in logic.
   ```
   /index.html
-  /css/style.css
-  /js/engine.js       (movement, hotspots, cards, voice)
-  /js/chapters/ch1.js ... ch7.js   (scene SVG + spots + text)
-  /js/story.js        (all text, so I can edit my words easily)
-  /assets/            (audio, if any)
+  /css/game.css
+  /js/game-data.js    (all islands, places and dialog text: the only file for my words)
+  /js/art.js          (all SVG drawings)
+  /js/game.js         (screens, zoom camera, dialog, treasure, sound, voice)
+  /assets/voice/      (my narration clips, optional)
+  /old/               (the earlier scrolling version, for reusing its interactions)
   ```
 - **Starting point:** no prototype exists; build from scratch in this structure.
 - **Voice:** browser Web Speech API for commands and read-aloud. Works best in Chrome and Edge. Every voice action must also have a button.
