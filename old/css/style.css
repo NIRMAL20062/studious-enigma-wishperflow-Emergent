@@ -1,0 +1,843 @@
+/* Palette and type from CLAUDE.md section 3 */
+:root {
+  --cream: #FFFFEB;
+  --green: #034F46;
+  --lavender: #EBD5FF;
+  --orange: #FFA946;
+  --coral: #FF6B4E;
+  --pink: #F9B8F0;
+  --ink: #1A1A1A;
+
+  --font-ui: "Figtree", system-ui, sans-serif;
+  --font-story: "EB Garamond", Georgia, serif;
+
+  --gutter: 16px;
+  --radius: 20px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h1 { font-size: clamp(2.5rem, 9vw, 6rem); }
+
+.story-text {
+  font-family: var(--font-story);
+  font-size: clamp(1.25rem, 3.5vw, 1.75rem);
+  line-height: 1.45;
+  max-width: 34ch;
+}
+
+.eyebrow {
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+
+:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+h2 { font-size: clamp(2rem, 7vw, 4.5rem); }
+
+/* Scenes: one full screen each, snapping into place */
+html {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.scene {
+  min-height: 100svh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  /* top clears the progress bar, bottom clears the voice dock */
+  padding: 72px var(--gutter) 140px;
+  background: var(--bg);
+  color: var(--fg);
+  transition: background-color 0.6s ease;
+}
+
+.scene-inner {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Themes: scenes use all three; the fixed UI (progress, sound, voice dock) follows the current scene */
+[data-theme="cream"]    { --bg: var(--cream);    --fg: var(--ink);   --accent: var(--green); }
+[data-theme="green"]    { --bg: var(--green);    --fg: var(--cream); --accent: var(--orange); }
+[data-theme="lavender"] { --bg: var(--lavender); --fg: var(--ink);   --accent: var(--green); }
+[data-theme="ink"]      { --bg: var(--ink);      --fg: var(--cream); --accent: var(--pink); }
+
+.scene .eyebrow { color: var(--accent); }
+
+/* Progress: a thin line along the top, and the current scene's label. Takes colours from the scene. */
+.progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 10;
+  height: 72px;
+  pointer-events: none;
+  color: var(--fg, var(--ink));
+  /* soft fade in the scene colour, so tall scenes scroll cleanly under the controls */
+  background: linear-gradient(var(--bg, var(--cream)) 55%, transparent);
+}
+
+.progress-track {
+  height: 3px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent, var(--green));
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: background-color 0.6s ease;
+}
+
+.progress-label {
+  margin: 12px var(--gutter) 0;
+  max-width: calc(100% - 150px); /* never runs under the sound button on small phones */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+/* Sound toggle: top right, colours follow the current scene like the progress line */
+.sound-toggle {
+  position: fixed;
+  top: 10px;
+  right: var(--gutter);
+  z-index: 11;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg, var(--ink));
+  font: 600 0.75rem/1 var(--font-ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: color 0.6s ease, opacity 0.2s ease;
+}
+
+.sound-toggle:hover { opacity: 1; }
+
+.sound-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sound-toggle .icon-on,
+.sound-toggle[aria-pressed="true"] .icon-off { display: none; }
+.sound-toggle[aria-pressed="true"] .icon-on  { display: block; }
+
+/* Voice dock: bottom centre. Arrows always work; the mic appears only where speech is supported. */
+.voice-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px var(--gutter) max(16px, env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--bg, var(--cream)) 40%);
+  pointer-events: none;
+  color: var(--fg, var(--ink));
+  transition: color 0.6s ease;
+}
+
+.voice-transcript {
+  margin: 0;
+  min-height: 1.4em;
+  max-width: min(100%, 36ch);
+  text-align: center;
+  font-family: var(--font-story);
+  font-style: italic;
+  font-size: 1.15rem;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.voice-transcript.is-shown {
+  opacity: 0.9;
+  transform: none;
+}
+
+.voice-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.nav-btn,
+.mic-btn {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-btn {
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  opacity: 0.7;
+}
+
+.nav-btn:hover { opacity: 1; }
+.nav-btn:disabled { opacity: 0.2; cursor: default; }
+
+.mic-btn {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border: none;
+  background: var(--fg, var(--ink));
+  color: var(--bg, var(--cream));
+}
+
+.mic-btn:hover { transform: scale(1.05); }
+
+.mic-btn[aria-pressed="true"] {
+  background: var(--coral);
+  color: var(--cream);
+}
+
+/* Listening: a soft ring that breathes outward */
+.mic-btn[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  border: 2px solid var(--coral);
+  animation: listening 1.4s ease-out infinite;
+}
+
+@keyframes listening {
+  from { transform: scale(0.9); opacity: 0.9; }
+  to   { transform: scale(1.35); opacity: 0; }
+}
+
+.nav-btn svg,
+.mic-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mic-btn svg { width: 26px; height: 26px; }
+
+/* TODO placeholder text: loud on purpose, so it never ships */
+.todo {
+  outline: 1.5px dashed var(--coral);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* 4.3 Quiet scene: centred, smaller, and the controls step back */
+.scene[data-type="quiet"] .scene-inner {
+  align-items: center;
+  text-align: center;
+}
+
+.scene[data-type="quiet"] .story-text {
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  max-width: 28ch;
+  opacity: 0.85;
+}
+
+.progress,
+.sound-toggle,
+.voice-dock { transition: color 0.6s ease, opacity 1s ease; }
+
+body[data-scene-type="quiet"] .progress,
+body[data-scene-type="quiet"] .sound-toggle,
+body[data-scene-type="quiet"] .voice-dock { opacity: 0.2; }
+
+body[data-scene-type="quiet"] .sound-toggle:hover,
+body[data-scene-type="quiet"] .voice-dock:hover,
+body[data-scene-type="quiet"] .voice-dock:focus-within { opacity: 1; }
+
+/* 4.7 Decision cards */
+.decision {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.decision-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 22px 20px;
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.decision-card:not(:disabled):hover {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+.decision-card h3 { font-size: clamp(1.6rem, 4vw, 2.2rem); }
+
+.decision-card ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.decision-card li { padding-left: 14px; position: relative; }
+
+.decision-card li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+.decision-key {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.decision-card:disabled { cursor: default; }
+
+.js .decision .decision-card.is-chosen {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+.js .decision .decision-card.is-dimmed { opacity: 0.3; }
+
+.decision-outcome { min-height: 1.45em; }
+
+/* 4.9 Post-mortem: a calm document, not a report card */
+.postmortem {
+  width: 100%;
+  max-width: 720px;
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+
+.pm-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  padding: 18px 22px;
+  border-bottom: 1.5px solid currentColor;
+}
+
+.pm-kicker {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.pm-name { font-size: 1.4rem; }
+
+.pm-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--coral);
+  color: var(--cream);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pm-rows { margin: 0; }
+
+.pm-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.35fr) 1fr;
+  gap: 6px 18px;
+  padding: 16px 22px;
+}
+
+.pm-row + .pm-row { border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent); }
+
+.pm-row dt {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  padding-top: 0.25em;
+}
+
+.pm-row dd {
+  margin: 0;
+  font-family: var(--font-story);
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 540px) {
+  .pm-row { grid-template-columns: 1fr; }
+}
+
+[hidden] { display: none !important; }
+
+/* Shared controls for interactive scenes */
+.scene-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  font: 600 1rem/1 var(--font-ui);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  align-self: flex-start;
+}
+
+.pill-btn:hover { transform: translateY(-1px); }
+.pill-btn[aria-pressed="true"] { background: var(--coral); color: var(--cream); }
+.pill-btn svg { width: 20px; height: 20px; }
+
+.pill-btn svg,
+.icon-btn svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.link-btn {
+  min-height: 44px;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: 600 0.95rem var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  opacity: 0.75;
+}
+
+.link-btn:hover { opacity: 1; }
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.icon-btn svg { width: 22px; height: 22px; }
+.icon-btn[aria-pressed="true"] { background: var(--coral); border-color: var(--coral); color: var(--cream); }
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 500 0.95rem var(--font-ui);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.chip:hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+
+.heard {
+  min-height: 1.4em;
+  margin: 0;
+  font-family: var(--font-story);
+  font-style: italic;
+  font-size: 1.2rem;
+  opacity: 0.85;
+}
+
+/* 4.5 Read this */
+.rt-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 680px;
+}
+
+.rt-count {
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--coral);
+}
+
+.rt-timer {
+  height: 4px;
+  border-radius: 4px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  overflow: hidden;
+}
+
+.rt-bar {
+  height: 100%;
+  background: var(--coral);
+  transform-origin: left;
+}
+
+.rt-passage {
+  margin: 0;
+  font-size: clamp(1.3rem, 3.6vw, 1.7rem);
+  line-height: 1.6;
+}
+
+.rt-question { margin: 0; font-weight: 600; font-size: 1.1rem; }
+
+.rt-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.rt-choice {
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font: 500 1rem var(--font-ui);
+  cursor: pointer;
+}
+
+.rt-choice:not(:disabled):hover { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.rt-choice:disabled { cursor: default; opacity: 0.45; }
+.rt-choice.is-correct { opacity: 1; background: var(--green); border-color: var(--green); color: var(--cream); }
+.rt-choice.is-wrong { opacity: 1; background: var(--coral); border-color: var(--coral); color: var(--cream); }
+
+.rt-result { display: flex; flex-direction: column; gap: 12px; }
+.rt-verdict { margin: 0; font-weight: 800; font-size: 1.6rem; }
+
+.rt-translation {
+  margin: 0;
+  font-family: var(--font-story);
+  font-style: italic;
+  font-size: 1.15rem;
+  opacity: 0.75;
+  max-width: 52ch;
+}
+
+/* 4.6 Say it */
+.sayit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 26px 26px 22px;
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius);
+  max-width: 560px;
+}
+
+.sayit-phrase {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(2rem, 7vw, 3.2rem);
+  line-height: 1.2;
+}
+
+.sayit-roman { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--accent); }
+.sayit-meaning { margin: 0; font-family: var(--font-story); font-style: italic; font-size: 1.15rem; opacity: 0.75; }
+
+/* 4.11 Ask me anything */
+.ask-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 640px;
+}
+
+.ask-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: 400 1rem var(--font-ui);
+}
+
+.ask-input::placeholder { color: inherit; opacity: 0.55; }
+
+.ask-q {
+  min-height: 1.2em;
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ask-a { min-height: 2.9em; margin: 0; }
+
+/* 4.13 Personas */
+.persona-panel {
+  width: 100%;
+  max-width: 720px;
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.persona-name { padding: 18px 22px; font-size: 1.4rem; border-bottom: 1.5px solid currentColor; }
+
+.persona-panel .pm-row[data-reveal] { opacity: 1; transform: none; }
+
+.persona-panel.is-swapped { animation: swap-in 0.5s ease; }
+
+@keyframes swap-in {
+  from { opacity: 0.2; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* 4.14 Demo */
+.demo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.demo-panel {
+  min-height: 150px;
+  padding: 20px 22px;
+  border: 1.5px solid currentColor;
+  border-radius: var(--radius);
+}
+
+.demo-panel-clean { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+
+.demo-label {
+  margin: 0 0 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.demo-raw,
+.demo-clean {
+  margin: 0;
+  font-family: var(--font-story);
+  font-size: 1.3rem;
+  line-height: 1.45;
+}
+
+.demo-raw .filler {
+  color: var(--coral);
+  text-decoration-thickness: 2px;
+}
+
+.demo-input { max-width: 320px; }
+
+.demo-note { margin: 0; font-size: 0.9rem; opacity: 0.65; }
+
+/* 4.15 Ending */
+.end-facts {
+  margin: 0;
+  display: grid;
+  gap: 0;
+  max-width: 560px;
+}
+
+.end-fact {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.end-fact dt {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.65;
+  padding-top: 0.2em;
+}
+
+.end-fact dd { margin: 0; font-weight: 600; }
+
+.end-credit {
+  margin: 8px 0 0;
+  font-family: var(--font-story);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Reveal: hidden only when JS is running, so content never disappears if JS fails */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.9s ease,
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 140ms);
+}
+
+.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Dictation: words land one by one, like live transcription */
+.js [data-dictate] .word {
+  opacity: 0;
+  filter: blur(4px);
+  transition: opacity 0.25s ease, filter 0.35s ease;
+}
+
+.js [data-dictate] .word.on {
+  opacity: 1;
+  filter: none;
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -0.12em;
+  background: var(--accent, var(--green));
+  opacity: 0;
+}
+
+[data-dictate].is-typing .caret {
+  opacity: 1;
+  animation: caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .js [data-dictate] .word {
+    opacity: 1;
+    filter: none;
+  }
+}

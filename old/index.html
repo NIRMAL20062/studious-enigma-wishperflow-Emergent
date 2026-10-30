@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nirmal Kumar</title>
+  <meta name="description" content="From a village in Bihar to Wispr Flow. An interactive story, built with voice.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="progress" aria-hidden="true">
+    <div class="progress-track"><div class="progress-fill"></div></div>
+    <p class="progress-label"></p>
+  </div>
+
+  <button class="sound-toggle" type="button" aria-pressed="false" aria-label="Sound off. Turn sound on">
+    <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+    <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 8.5a5 5 0 0 1 0 7M19.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+    <span class="sound-text">Sound</span>
+  </button>
+
+  <div class="voice-dock">
+    <p class="voice-transcript" aria-live="polite"></p>
+    <div class="voice-controls">
+      <button class="nav-btn" type="button" data-nav="prev" aria-label="Previous scene">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+      </button>
+      <button class="mic-btn" type="button" aria-pressed="false" aria-label="Speak a command" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+      </button>
+      <button class="nav-btn" type="button" data-nav="next" aria-label="Next scene">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main id="story">
+    <!-- Scenes are built from js/story.js by js/engine.js -->
+  </main>
+
+  <script src="js/story.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/engine.js"></script>
+</body>
+</html>
