@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The Voyage</title>
+  <meta name="description" content="A true story from a village in Bihar to Wispr Flow. A game you play with your voice.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Figtree:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body data-screen="lobby">
+  <div id="app">
+
+    <!-- HUD: always on top, like a mobile game -->
+    <header class="hud">
+      <div class="hud-player">
+        <div class="hud-avatar" data-art="portrait"></div>
+        <div class="hud-id">
+          <p class="hud-name"></p>
+          <p class="hud-where">The harbour</p>
+        </div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-loot" aria-label="Treasures found">
+          <span class="hud-chest" data-art="chest"></span>
+          <span class="hud-loot-count">0/3</span>
+        </div>
+        <button class="hud-btn sound-toggle" type="button" aria-pressed="false" aria-label="Sound off. Turn sound on">
+          <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+          <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 8.5a5 5 0 0 1 0 7M19.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Lobby -->
+    <section class="screen" id="lobby" aria-label="Lobby">
+      <div class="lobby-sea" aria-hidden="true"></div>
+      <div class="lobby-title">
+        <p class="kicker">A true story · Played with your voice</p>
+        <h1>The<br>Voyage</h1>
+      </div>
+      <div class="lobby-hero">
+        <div class="hero-stage" aria-hidden="true"></div>
+        <div class="hero" data-art="hero" role="img" aria-label="Nirmal, the captain"></div>
+      </div>
+      <div class="lobby-panel">
+        <div class="mission">
+          <p class="mission-label">Mission</p>
+          <p class="mission-text">Sail from Kolkata to the island in the fog.</p>
+          <p class="mission-meta"><span class="island-count"></span> islands · 3 treasures</p>
+        </div>
+        <button class="big-btn" type="button" data-action="sail">Set sail</button>
+        <p class="hint">or tap the mic and say <em>"set sail"</em></p>
+      </div>
+    </section>
+
+    <!-- Sea map -->
+    <section class="screen" id="map" aria-label="Sea map" hidden>
+      <svg class="map-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet"></svg>
+    </section>
+
+    <!-- Island close-up -->
+    <section class="screen" id="island" aria-label="Island" hidden>
+      <svg class="island-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet"></svg>
+    </section>
+
+    <!-- Inside a place -->
+    <section class="screen" id="inside" aria-label="Inside" hidden>
+      <div class="inside-art" aria-hidden="true"></div>
+    </section>
+
+    <!-- Anime-style dialog box -->
+    <div class="dialog" role="dialog" aria-live="polite" hidden>
+      <div class="dialog-portrait" aria-hidden="true"></div>
+      <div class="dialog-box">
+        <p class="dialog-name"></p>
+        <p class="dialog-text"></p>
+        <span class="dialog-next" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <!-- Activity card: a trial, choice, log or demo after a place's dialog -->
+    <div class="activity" role="dialog" aria-labelledby="activity-title" hidden>
+      <div class="activity-card">
+        <p class="activity-kicker"></p>
+        <h2 class="activity-title" id="activity-title"></h2>
+        <div class="activity-body"></div>
+        <button class="big-btn activity-done" type="button">Continue</button>
+      </div>
+    </div>
+
+    <!-- Treasure / island cleared popup -->
+    <div class="reward" role="alertdialog" aria-modal="true" hidden>
+      <div class="reward-card">
+        <div class="reward-chest" data-art="chest"></div>
+        <p class="reward-kicker"></p>
+        <h2 class="reward-title"></h2>
+        <p class="reward-detail"></p>
+        <button class="big-btn" type="button" data-action="reward-ok">Back to the sea</button>
+      </div>
+    </div>
+
+    <p class="toast" aria-live="polite"></p>
+
+    <!-- Voice dock -->
+    <nav class="dock" aria-label="Controls">
+      <p class="dock-transcript" aria-live="polite"></p>
+      <div class="dock-row">
+        <button class="dock-btn" type="button" data-action="back" aria-label="Back">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <button class="mic-btn" type="button" aria-pressed="false" aria-label="Speak a command" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+        </button>
+        <span class="dock-spacer" aria-hidden="true"></span>
+      </div>
+    </nav>
+  </div>
+
+  <script src="js/game-data.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/activities.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
