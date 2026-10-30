@@ -19,6 +19,7 @@ const state = {
   place: null, // index into the island's places
   cleared: new Set(), // "islandId:placeId"
   rewarded: new Set(), // island ids
+  skipped: false, // true after "Skip to the growth pitch": every island opens
   busy: false, // true while a transition runs
 };
 
@@ -33,6 +34,7 @@ const screens = {
 // ---------- Progress rules ----------
 const isCleared = (i) => islands[i].places.every((p) => state.cleared.has(`${islands[i].id}:${p.id}`));
 const isUnlocked = (i) => {
+  if (state.skipped) return true;
   if (islands[i].final) return islands.every((isl, j) => isl.final || isCleared(j));
   return i === 0 || isCleared(i - 1);
 };
@@ -190,6 +192,14 @@ async function goMap() {
   state.busy = false;
   const next = nextIsland();
   if (next >= 0) toast(`Tap ${islands[next].name}, or say it`);
+}
+
+// For busy judges: straight to the final island, with every island left open to explore
+async function goPitch() {
+  if (state.busy) return;
+  state.skipped = true;
+  await goMap();
+  openIsland(islands.findIndex((isl) => isl.final));
 }
 
 async function openIsland(i) {
@@ -473,6 +483,7 @@ async function goBack() {
 
 $('[data-action="back"]').addEventListener("click", goBack);
 $('[data-action="sail"]').addEventListener("click", goMap);
+$('[data-action="pitch"]').addEventListener("click", goPitch);
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") goBack();
@@ -594,6 +605,7 @@ function currentCommands() {
   }
   if (state.screen === "lobby") {
     list.push({ words: ["set sail", "sail", "start", "play", "chalo", "let's go"], label: "Setting sail", run: goMap });
+    list.push({ words: ["skip", "pitch", "growth"], label: "Straight to the pitch", run: goPitch });
   }
   if (state.screen === "map") {
     islands.forEach((isl, i) => list.push({ words: [isl.name.toLowerCase()], label: `Sailing to ${isl.name}`, run: () => openIsland(i) }));
